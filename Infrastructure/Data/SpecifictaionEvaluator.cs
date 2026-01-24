@@ -25,7 +25,7 @@ public class SpecifictaionEvaluator<T> where T : BaseEntity
 
     if (spec.IsPagingEnabled)
     {
-      query.Skip(spec.Skip).Take(spec.Take);
+      query = query.Skip(spec.Skip).Take(spec.Take);
     }
 
     return query;

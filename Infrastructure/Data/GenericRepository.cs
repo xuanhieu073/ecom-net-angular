@@ -22,6 +22,11 @@ public class GenericRepository<T>(StoreContext context) : IGenericRepository<T> 
     return await context.Set<T>().AnyAsync(x => x.Id == id);
   }
 
+  public async Task<IReadOnlyList<T>> ListAllAsync()
+  {
+    return await context.Set<T>().ToListAsync();
+  }
+
   public async Task<T?> GetByIdAsync(int id)
   {
     return await context.Set<T>().FindAsync(id);
@@ -37,9 +42,14 @@ public class GenericRepository<T>(StoreContext context) : IGenericRepository<T> 
     return await ApplySpecification(spec).ToListAsync();
   }
 
-  public async Task<IReadOnlyList<T>> ListAllAsync()
+  public async Task<TResult?> GetEntiryWithSpec<TResult>(ISpecification<T, TResult> spec)
   {
-    return await context.Set<T>().ToListAsync();
+    return await ApplySpecification(spec).FirstOrDefaultAsync();
+  }
+
+  public async Task<IReadOnlyList<TResult>> ListAsync<TResult>(ISpecification<T, TResult> spec)
+  {
+    return await ApplySpecification(spec).ToListAsync();
   }
 
   public void Remove(T entity)
@@ -56,16 +66,6 @@ public class GenericRepository<T>(StoreContext context) : IGenericRepository<T> 
   {
     context.Set<T>().Attach(entity);
     context.Entry(entity).State = EntityState.Modified;
-  }
-
-  public async Task<TResult?> GetEntiryWithSpec<TResult>(ISpecification<T, TResult> spec)
-  {
-    return await ApplySpecification(spec).FirstOrDefaultAsync();
-  }
-
-  public async Task<IReadOnlyList<TResult>> ListAsync<TResult>(ISpecification<T, TResult> spec)
-  {
-    return await ApplySpecification(spec).ToListAsync();
   }
 
   private IQueryable<T> ApplySpecification(ISpecification<T> spec)
